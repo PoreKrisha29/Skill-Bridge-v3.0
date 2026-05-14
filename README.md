@@ -1,4 +1,4 @@
-# 📚 SkillBridge V2.5
+# 📚 SkillBridge V3.0
 
 SkillBridge is a comprehensive, feature-rich service marketplace platform designed to seamlessly connect service providers (freelancers, professionals) with clients. It offers a secure, intuitive, and robust environment for managing services, orders, communications, and legal agreements.
 

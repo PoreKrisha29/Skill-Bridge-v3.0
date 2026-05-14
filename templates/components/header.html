@@ -1,0 +1,290 @@
+<!-- 
+    Header Component
+    
+    Features:
+    - Fixed top navigation
+    - Logo with gradient
+    - Desktop navigation links
+    - Mobile hamburger menu (Fixed)
+    - Login/Register or User menu
+    - Notifications
+    
+    JavaScript: Mobile menu toggle in main.js
+-->
+
+<header class="navbar navbar-expand-lg navbar-dark fixed-top shadow-sm"
+    style="background-color: rgba(33, 37, 41, 0.7) !important; backdrop-filter: blur(15px);">
+    <div class="container">
+        <!-- Logo -->
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}">
+            <div class="logo-icon gradient-primary rounded-3 p-2 me-2">
+                <i class="bi bi-lightning-charge-fill text-white"></i>
+            </div>
+            <span class="fw-bold">Skill<span class="text-gradient">Bridge</span></span>
+        </a>
+
+        <!-- Mobile Toggle Button -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Collapsible Content -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Navigation Links -->
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.index') }}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('service.browse') }}">Find Services</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.index') }}#categories">Categories</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.about') }}">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.reviews') }}">Reviews</a>
+                </li>
+                {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('user.chats') }}">Chats</a>
+                </li>
+                {% endif %}
+            </ul>
+
+            <!-- User Menu -->
+            <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                {% if current_user.is_authenticated %}
+
+                <!-- Notifications -->
+                <div class="dropdown">
+                    <button class="btn btn-link text-white position-relative p-0" type="button"
+                        data-bs-toggle="dropdown">
+                        <i class="bi bi-bell fs-5"></i>
+                        {% set unread_count = current_user.get_unread_notifications_count() %}
+                        {% if unread_count > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ unread_count }}
+                            <span class="visually-hidden">unread messages</span>
+                        </span>
+                        {% endif %}
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end p-0"
+                        style="width: 300px; max-height: 400px; overflow-y: auto;">
+                        <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+                            <span class="fw-bold">Notifications</span>
+                            <div>
+                                <button class="btn btn-sm btn-link text-decoration-none p-0 me-2"
+                                    onclick="markAllRead()">Mark all read</button>
+                                <button class="btn btn-sm btn-link text-danger text-decoration-none p-0"
+                                    onclick="clearAllNotifications()">Clear all</button>
+                            </div>
+                        </div>
+                        <div id="notification-list">
+                            {% for notification in current_user.get_recent_notifications(5) %}
+                            <div
+                                class="dropdown-item p-3 border-bottom {{ 'bg-light' if not notification.is_read else '' }} position-relative group-hover">
+                                <a href="{{ notification.link or '#' }}" onclick="markAsRead({{ notification.id }})"
+                                    class="d-block text-decoration-none text-dark">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="pe-3">
+                                            <h6 class="mb-1 text-wrap small fw-bold">{{ notification.title }}</h6>
+                                            <p class="mb-0 text-wrap small text-muted">{{ notification.message }}</p>
+                                        </div>
+                                        <small class="text-muted ms-2 text-nowrap">{{
+                                            (notification.created_at|to_ist).strftime('%I:%M %p') }}</small>
+                                    </div>
+                                </a>
+                                <button onclick="deleteNotification(event, {{ notification.id }})"
+                                    class="btn btn-sm btn-link text-muted position-absolute top-0 end-0 p-1 opacity-50 hover-opacity-100"
+                                    style="z-index: 10;">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                            {% else %}
+                            <div class="p-3 text-center text-muted small">No notifications</div>
+                            {% endfor %}
+                        </div>
+                        <div class="p-2 text-center border-top">
+                            <a href="#" class="text-decoration-none small">View All</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Authenticated User Menu -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-light dropdown-toggle d-flex align-items-center gap-2" type="button"
+                        data-bs-toggle="dropdown">
+                        <img src="{{ current_user.get_avatar_url() }}" alt="Avatar" class="rounded-circle" width="30"
+                            height="30">
+                        <span>{{ current_user.username }}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('user.dashboard') }}">
+                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                            </a></li>
+                        <li><a class="dropdown-item"
+                                href="{{ url_for('user.profile', username=current_user.username) }}">
+                                <i class="bi bi-person me-2"></i>Profile
+                            </a></li>
+                        {% if not current_user.is_admin() %}
+                        <li><a class="dropdown-item" href="{{ url_for('user.orders') }}">
+                                <i class="bi bi-bag me-2"></i>Orders
+                            </a></li>
+                        {% endif %}
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        {% if current_user.user_type == 'provider' %}
+                        {# Commented out for clients - only providers can sell skills #}
+                        {# {% if current_user.user_type == 'provider' or (current_user.user_type == 'client' and not
+                        current_user.is_admin()) %} #}
+                        <li><a class="dropdown-item" href="{{ url_for('service.create') }}">
+                                <i class="bi bi-plus-circle me-2"></i>Sell Your Skills
+                            </a></li>
+                        {% endif %}
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="{{ url_for('user.settings') }}">
+                                <i class="bi bi-gear me-2"></i>Settings
+                            </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                <i class="bi bi-box-arrow-right me-2"></i>Logout
+                            </a></li>
+                    </ul>
+                </div>
+                {% else %}
+                <!-- Guest User Buttons -->
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light">Log In</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-gradient-primary">Get Started</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Spacer for fixed header -->
+<div style="height: 76px;" id="navbar-spacer"></div>
+
+<script>
+    function markAsRead(notificationId) {
+        fetch(`/user/notifications/mark-read/${notificationId}`, { method: 'POST' });
+        // Assume navigation happens, but if it's strictly Ajax:
+        // document.getElementById('badge-count').innerText = ... (requires complex State mgmt, simpler to let page refresh or handle simple decrement)
+    }
+
+    function markAllRead() {
+        fetch('/user/notifications/mark-all-read', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update UI without refresh
+                    updateNotificationUI();
+                }
+            });
+    }
+
+    function clearAllNotifications() {
+        if (confirm('Clear all notifications?')) {
+            fetch('/user/notifications/clear-all', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        updateNotificationUI();
+                    }
+                });
+        }
+    }
+
+    function deleteNotification(event, notificationId) {
+        event.stopPropagation(); // Prevent clicking the link
+        fetch(`/user/notifications/delete/${notificationId}`, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    event.target.closest('.dropdown-item').remove();
+                    // Update badge count
+                    updateNotificationBadge();
+                }
+            });
+    }
+
+    // Real-time notification polling
+    function updateNotificationUI() {
+        fetch('/api/notifications')
+            .then(res => res.json())
+            .then(data => {
+                updateNotificationBadge(data.unread_count);
+                updateNotificationList(data.notifications);
+            })
+            .catch(err => console.log('Notification fetch error:', err));
+    }
+
+    function updateNotificationBadge(count) {
+        const bellButton = document.querySelector('.btn-link .bi-bell').parentElement;
+        let badge = bellButton.querySelector('.badge');
+
+        if (count > 0) {
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger';
+                badge.innerHTML = `${count}<span class="visually-hidden">unread messages</span>`;
+                bellButton.appendChild(badge);
+            } else {
+                badge.innerHTML = `${count}<span class="visually-hidden">unread messages</span>`;
+            }
+        } else if (badge) {
+            badge.remove();
+        }
+    }
+
+    function updateNotificationList(notifications) {
+        const list = document.getElementById('notification-list');
+        if (!list) return;
+
+        if (notifications.length === 0) {
+            list.innerHTML = '<div class="p-3 text-center text-muted small">No notifications</div>';
+            return;
+        }
+
+        list.innerHTML = notifications.map(n => `
+            <div class="dropdown-item p-3 border-bottom ${!n.is_read ? 'bg-light' : ''} position-relative group-hover">
+                <a href="${n.link}" onclick="markAsRead(${n.id})" class="d-block text-decoration-none text-dark">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="pe-3">
+                            <h6 class="mb-1 text-wrap small fw-bold">${escapeHtml(n.title)}</h6>
+                            <p class="mb-0 text-wrap small text-muted">${escapeHtml(n.message)}</p>
+                        </div>
+                        <small class="text-muted ms-2 text-nowrap">${n.time}</small>
+                    </div>
+                </a>
+                <button onclick="deleteNotification(event, ${n.id})"
+                    class="btn btn-sm btn-link text-muted position-absolute top-0 end-0 p-1 opacity-50 hover-opacity-100"
+                    style="z-index: 10;">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Start polling when page loads (only for authenticated users)
+    {% if current_user.is_authenticated %}
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initial fetch
+        updateNotificationUI();
+
+        // Poll every 10 seconds for new notifications
+        setInterval(updateNotificationUI, 10000);
+    });
+    {% endif %}
+</script>

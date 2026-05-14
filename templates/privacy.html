@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Privacy Policy - SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2 class="mb-4">Privacy Policy</h2>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <p class="text-muted">Last updated: February 19, 2026</p>
+
+                    <h5 class="mt-4">1. Information Collection</h5>
+                    <p>We collect information you provide directly to us, such as when you create an account, update
+                        your profile, or communicate with us.</p>
+
+                    <h5 class="mt-4">2. Use of Information</h5>
+                    <p>We use the information we collect to provide, maintain, and improve our services, including to
+                        process transactions and send you related information.</p>
+
+                    <h5 class="mt-4">3. Information Sharing</h5>
+                    <p>We do not share your personal information with third parties except as described in this policy
+                        or with your consent.</p>
+
+                    <h5 class="mt-4">4. Data Security</h5>
+                    <p>We take reasonable measures to help protect information about you from loss, theft, misuse and
+                        unauthorized access, disclosure, alteration and destruction.</p>
+
+                    <h5 class="mt-4">5. Cookies</h5>
+                    <p>We use cookies and similar technologies to collect information about your activity, browser, and
+                        device.</p>
+
+                    <div class="mt-5 text-center">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Back to Registration</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

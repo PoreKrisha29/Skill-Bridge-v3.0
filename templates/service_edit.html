@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Service - SkillBridge{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Edit Service</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('service.edit', service_id=service.id) }}"
+                            enctype="multipart/form-data">
+                            <!-- Title -->
+                            <div class="mb-3">
+                                <label class="form-label">Service Title *</label>
+                                <input type="text" class="form-control" name="title" value="{{ service.title }}"
+                                    required>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="mb-3">
+                                <label class="form-label">Category *</label>
+                                <select class="form-select" name="category_id" required>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}" {% if category.id==service.category_id
+                                        %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-3">
+                                <label class="form-label">Description *</label>
+                                <textarea class="form-control" name="description" rows="5"
+                                    required>{{ service.description }}</textarea>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="mb-3">
+                                <label class="form-label">Price (INR) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" name="price" value="{{ service.price }}"
+                                        min="50" step="1" required>
+                                </div>
+                            </div>
+
+                            <!-- Delivery Time -->
+                            <div class="mb-3">
+                                <label class="form-label">Estimated Delivery Time *</label>
+                                <select class="form-select" name="delivery_time" required>
+                                    <option value="">Select delivery time range</option>
+                                    <option value="1-2 days" {% if service.delivery_time=='1-2 days' %}selected{% endif
+                                        %}>1-2 days</option>
+                                    <option value="3-5 days" {% if service.delivery_time=='3-5 days' %}selected{% endif
+                                        %}>3-5 days</option>
+                                    <option value="5-7 days" {% if service.delivery_time=='5-7 days' %}selected{% endif
+                                        %}>5-7 days</option>
+                                    <option value="7-10 days" {% if service.delivery_time=='7-10 days' %}selected{%
+                                        endif %}>7-10 days</option>
+                                    <option value="10-14 days" {% if service.delivery_time=='10-14 days' %}selected{%
+                                        endif %}>10-14 days</option>
+                                    <option value="14-30 days" {% if service.delivery_time=='14-30 days' %}selected{%
+                                        endif %}>14-30 days</option>
+                                    <option value="Custom" {% if service.delivery_time=='Custom' %}selected{% endif %}>
+                                        Custom</option>
+                                </select>
+                                <div class="form-text text-muted"> <i class="bi bi-info-circle"></i> This is an
+                                    approximate time. Complex projects may take longer.</div>
+                            </div>
+
+                            <!-- Image -->
+                            <div class="mb-3">
+                                <label class="form-label">Update Service Image</label>
+                                <input type="file" class="form-control" name="image" accept="image/*">
+                                <small class="text-muted">Leave blank to keep current image</small>
+                            </div>
+
+
+                            <!-- Submit Buttons -->
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-gradient-primary">
+                                    <i class="bi bi-check-circle me-2"></i>
+                                    Update Service
+                                </button>
+                                <a href="{{ url_for('service.detail', service_id=service.id) }}"
+                                    class="btn btn-outline-secondary">
+                                    Cancel
+                                </a>
+                                <form method="POST" action="{{ url_for('service.delete', service_id=service.id) }}"
+                                    class="ms-auto">
+                                    <button type="submit" class="btn btn-outline-danger"
+                                        onclick="return confirm('Are you sure you want to delete this service?')">
+                                        <i class="bi bi-trash me-2"></i>
+                                        Delete Service
+                                    </button>
+                                </form>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

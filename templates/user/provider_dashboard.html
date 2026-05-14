@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+
+{% block title %}Provider Dashboard - SkillBridge{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <h2 class="fw-bold">Provider Dashboard</h2>
+                <p class="text-muted">Manage your services and orders</p>
+            </div>
+            <div class="col-auto">
+                <a href="{{ url_for('service.create') }}" class="btn btn-gradient-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Create New Service
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p class="text-muted mb-1">Total Services</p>
+                                <h3>{{ stats.total_services or 0 }}</h3>
+                            </div>
+                            <div class="stat-icon bg-primary">
+                                <i class="bi bi-briefcase-fill text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p class="text-muted mb-1">Active Orders</p>
+                                <h3>{{ orders|length }}</h3>
+                            </div>
+                            <div class="stat-icon bg-success">
+                                <i class="bi bi-cart-fill text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p class="text-muted mb-1">Total Reviews</p>
+                                <h3>{{ stats.total_reviews or 0 }}</h3>
+                            </div>
+                            <div class="stat-icon bg-warning">
+                                <i class="bi bi-star-fill text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p class="text-muted mb-1">Avg Rating</p>
+                                <h3>{{ current_user.get_average_rating() }}</h3>
+                            </div>
+                            <div class="stat-icon bg-info">
+                                <i class="bi bi-graph-up text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Services -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">My Services</h5>
+            </div>
+            <div class="card-body">
+                {% if services %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Price</th>
+                                <th>Rating</th>
+
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for service in services %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('service.detail', service_id=service.id) }}"
+                                        class="text-decoration-none fw-medium">
+                                        {{ service.title }}
+                                    </a>
+                                </td>
+                                <td>₹{{ "%.0f"|format(service.price) }}</td>
+                                <td>
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                    {{ service.get_average_rating() }}
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-{% if service.is_active %}success{% else %}danger{% endif %}">
+                                        {% if service.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('service.edit', service_id=service.id) }}"
+                                        class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                    <p>You haven't created any services yet</p>
+                    <a href="{{ url_for('service.create') }}" class="btn btn-primary">
+                        Create Your First Service
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Orders</h5>
+            </div>
+            <div class="card-body">
+                {% if orders %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Service</th>
+                                <th>Buyer</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr style="cursor: pointer;"
+                                onclick="window.location='{{ url_for('user.order_detail', order_id=order.id) }}';">
+                                <td><a href="{{ url_for('user.order_detail', order_id=order.id) }}"
+                                        class="fw-bold text-decoration-none">#{{ order.id }}</a></td>
+                                <td>{{ order.service.title }}</td>
+                                <td>{{ order.buyer.username }}</td>
+                                <td>{{ order.created_at.strftime('%b %d, %Y') }}</td>
+                                <td>
+                                    <span
+                                        class="badge bg-{{ 'warning' if order.status=='pending' else 'primary' if order.status=='in_progress' else 'success' }}">{{
+                                        order.status|title }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                    <p>No orders yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+</style>
+{% endblock %}

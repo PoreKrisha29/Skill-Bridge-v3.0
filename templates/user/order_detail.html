@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ order.id }} - SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-1">Order #{{ order.id }}: {{ order.service.title }}</h2>
+            <p class="text-muted mb-0">Started on {{ order.created_at.strftime('%b %d, %Y') }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div
+                class="badge bg-{{ 'warning' if order.status=='pending' else 'primary' if order.status=='in_progress' else 'success' if order.status=='completed' else 'danger' }} fs-5 px-4 py-2 rounded-pill">
+                {{ order.status|title }}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar: Details -->
+        <div class="col-md-4 order-md-2 mb-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Order Details</h5>
+
+                    <div class="mb-3">
+                        <label class="text-muted small">Budget Tier</label>
+                        <div class="fw-bold">{{ order.budget_tier }}</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small">Price</label>
+                        <div class="fw-bold fs-4 text-primary">₹{{ "%.2f"|format(order.total_price) }}</div>
+                        <!-- Approx USD to INR conversion or assume stored as INR. User said 'pricing in rupees'. If stored as USD, I convert. Attempt 1: Just show symbol. -->
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small">Requirements</label>
+                        <p class="mb-0 small">{{ order.requirements }}</p>
+                    </div>
+
+                    {% if order.scope %}
+                    <div class="mb-3">
+                        <label class="text-muted small">Scope</label>
+                        <p class="mb-0 small">{{ order.scope }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if order.deadline %}
+                    <div class="mb-3">
+                        <label class="text-muted small">Deadline</label>
+                        <div class="fw-bold text-danger">{{ order.deadline.strftime('%b %d, %Y') }}</div>
+                    </div>
+                    {% endif %}
+
+                    <hr>
+
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="{{ order.buyer.get_avatar_url() }}" class="rounded-circle me-3" width="40"
+                            height="40">
+                        <div>
+                            <div class="small text-muted">Client</div>
+                            <div class="fw-bold">{{ order.buyer.username }}</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center">
+                        <img src="{{ order.service.provider.get_avatar_url() }}" class="rounded-circle me-3" width="40"
+                            height="40">
+                        <div>
+                            <div class="small text-muted">Provider</div>
+                            <div class="fw-bold">{{ order.service.provider.username }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workflow Actions -->
+            {% if current_user.id == order.seller_id %}
+            {% if order.status == 'pending' %}
+            <div class="card shadow-sm border-0 mb-4 bg-light">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Action Required</h5>
+                    <form action="{{ url_for('user.order_action', order_id=order.id, action='accept') }}" method="POST">
+                        <button class="btn btn-success w-100 py-2 mb-2">
+                            <i class="bi bi-check-circle me-2"></i>Accept Order
+                        </button>
+                    </form>
+                    <form action="{{ url_for('user.order_action', order_id=order.id, action='reject') }}" method="POST"
+                        onsubmit="return confirm('Are you sure you want to reject this order? This action cannot be undone.');">
+                        <button class="btn btn-outline-danger w-100 py-2 mb-2">
+                            <i class="bi bi-x-circle me-2"></i>Reject Order
+                        </button>
+                    </form>
+                    <p class="small text-muted mb-0 text-center">Accepting will unlock the chat.</p>
+                </div>
+            </div>
+            {% elif order.status == 'in_progress' %}
+            <div class="card shadow-sm border-0 mb-4 bg-light">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Project Status</h5>
+                    <form action="{{ url_for('user.order_action', order_id=order.id, action='complete') }}"
+                        method="POST">
+                        <button class="btn btn-primary w-100 py-2">
+                            <i class="bi bi-award me-2"></i>Mark as Completed
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+        </div>
+
+        <!-- Main: Chat -->
+        <div class="col-md-8 order-md-1">
+            <div class="card shadow border-0" style="height: 600px; display: flex; flex-direction: column;">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-chat-dots me-2 text-primary"></i>Project Chat</h5>
+                </div>
+
+                <div class="card-body bg-light overflow-auto flex-grow-1" id="chat-messages">
+                    {% if order.status == 'pending' %}
+                    <div class="d-flex h-100 align-items-center justify-content-center flex-column text-muted">
+                        <i class="bi bi-lock fs-1 mb-3"></i>
+                        <h5>Chat is Locked</h5>
+                        <p>The provider must accept the order to enable chat.</p>
+                    </div>
+                    {% elif messages|length == 0 %}
+                    <div class="text-center py-5 text-muted">
+                        <p>No messages yet. Start the conversation!</p>
+                    </div>
+                    {% else %}
+                    {% for msg in messages %}
+                    <div
+                        class="d-flex mb-3 {{ 'justify-content-end' if msg.sender_id == current_user.id else 'justify-content-start' }}">
+                        <div class="card border-0 shadow-sm {{ 'bg-primary text-white' if msg.sender_id == current_user.id else 'bg-white' }}"
+                            style="max-width: 75%; border-radius: 15px;">
+                            <div class="card-body py-2 px-3">
+                                <p class="mb-1">{{ msg.content }}</p>
+                                <div class="small {{ 'text-white-50' if msg.sender_id == current_user.id else 'text-muted' }} text-end"
+                                    style="font-size: 0.75rem;">
+                                    {{ (msg.created_at|to_ist).strftime('%I:%M %p') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+
+                {% if order.status in ['in_progress', 'completed'] %}
+                <div class="card-footer bg-white py-3">
+                    <div class="input-group input-group-lg">
+                        <input type="text" id="message-input" class="form-control border-0 bg-light rounded-pill ps-4"
+                            placeholder="Type a message..." autocomplete="off">
+                        <button id="send-btn" class="btn btn-primary rounded-pill ms-2 px-4">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Socket.IO Client -->
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+    const orderId = {{ order.id }};
+    const currentUserId = {{ current_user.id }};
+    const orderStatus = '{{ order.status }}';
+
+    // Initialize Socket.IO with explicit transports for better compatibility
+    const socket = io({
+        transports: ['websocket', 'polling'],
+        reconnectionAttempts: 5
+    });
+
+    const chatContainer = document.getElementById('chat-messages');
+
+    // Join order room
+    socket.on('connect', function () {
+        console.log('✅ Connected to chat server');
+        socket.emit('join', { order_id: orderId });
+    });
+
+    socket.on('connect_error', (error) => {
+        console.error('❌ Socket Connection Error:', error);
+    });
+
+    socket.on('error', function (data) {
+        alert('Chat Error: ' + data.message);
+    });
+
+    socket.on('joined', function (data) {
+        console.log('✨ Joined chat room for Order #' + data.order_id);
+    });
+
+    // Handle incoming messages
+    socket.on('new_message', function (data) {
+        if (!chatContainer) return;
+
+        const isOwnMessage = data.sender_id === currentUserId;
+        const istTime = data.time_display;
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `d-flex mb-3 ${isOwnMessage ? 'justify-content-end' : 'justify-content-start'}`;
+
+        messageDiv.innerHTML = `
+            <div class="card border-0 shadow-sm ${isOwnMessage ? 'bg-primary text-white' : 'bg-white'}" 
+                 style="max-width: 75%; border-radius: 15px;">
+                <div class="card-body py-2 px-3">
+                    <p class="mb-1">${data.content}</p>
+                    <div class="small ${isOwnMessage ? 'text-white-50' : 'text-muted'} text-end" 
+                         style="font-size: 0.75rem;">
+                        ${istTime}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Remove "No messages" placeholder if it exists
+        const placeholder = chatContainer.querySelector('.text-center.py-5.text-muted');
+        if (placeholder) placeholder.remove();
+
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    });
+
+    // Send message
+    function sendMessage() {
+        const input = document.getElementById('message-input');
+        if (!input) return;
+
+        const content = input.value.trim();
+
+        if (!content || orderStatus === 'pending') return;
+
+        socket.emit('send_message', {
+            order_id: orderId,
+            content: content
+        });
+
+        input.value = '';
+    }
+
+    // Event listeners
+    document.getElementById('send-btn')?.addEventListener('click', sendMessage);
+    document.getElementById('message-input')?.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    // Auto-scroll to bottom of chat on load
+    if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+</script>
+{% endblock %}

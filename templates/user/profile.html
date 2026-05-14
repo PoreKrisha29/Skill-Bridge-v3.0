@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} - Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="margin-top: 20px;">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Header Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body text-center p-4">
+                    <div class="position-relative d-inline-block mb-3">
+                        <img src="{{ user.get_avatar_url() }}" class="rounded-circle shadow-sm border"
+                            style="width: 120px; height: 120px; object-fit: cover;" alt="{{ user.username }}">
+                    </div>
+                    <h4 class="fw-bold mb-1">
+                        {{ user.full_name or user.username }}
+                    </h4>
+                    <p class="text-muted mb-2 text-capitalize">{{ user.user_type }}</p>
+                    
+
+                    {% if current_user.is_authenticated and current_user.id == user.id %}
+                    <div class="mt-3">
+                        <a href="{{ url_for('user.settings') }}" class="btn btn-outline-primary btn-sm w-100">
+                            <i class="bi bi-gear me-2"></i>Edit Profile
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- About Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">About</h6>
+                    <p class="text-muted small mb-0">{{ user.bio or 'No bio available' }}</p>
+                </div>
+            </div>
+
+            <!-- Stats Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Stats</h6>
+                    <div class="row text-center g-2">
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <div class="fw-bold">{{ stats.total_services or 0 }}</div>
+                                <div class="small text-muted">Services</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <div class="fw-bold">{{ stats.completed_projects or 0 }}</div>
+                                <div class="small text-muted">Projects</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <div class="fw-bold">{{ stats.total_reviews or 0 }}</div>
+                                <div class="small text-muted">Reviews</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <div class="fw-bold">{{ user.get_average_rating() }}</div>
+                                <div class="small text-muted">Rating</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Personal Information -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0" style="color: #064e3b;">Personal Information</h5>
+                        {% if current_user.is_authenticated and current_user.id == user.id %}
+                        <a href="{{ url_for('user.settings') }}" class="btn btn-sm px-3"
+                            style="background-color: #f97316; color: white;">
+                            Edit <i class="bi bi-pencil ms-1"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="text-muted small d-block mb-1">Full Name</label>
+                            <span class="fw-medium text-dark">{{ user.full_name or user.username }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small d-block mb-1">Email Address</label>
+                            <span class="fw-medium text-dark">{{ user.email }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small d-block mb-1">Phone Number</label>
+                            <span class="fw-medium text-dark">{{ user.phone or '-' }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small d-block mb-1">User Role</label>
+                            <span class="fw-medium text-dark text-capitalize">{{ user.user_type }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Header -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0" style="color: #064e3b;">Portfolio ({{ user.portfolio.count() }})</h5>
+                {% if current_user.is_authenticated and current_user.id == user.id %}
+                <a href="{{ url_for('user.settings') }}" class="btn btn-sm btn-primary">Add Project</a>
+                {% endif %}
+            </div>
+
+            <!-- Portfolio Content -->
+            <div class="row g-4 mb-5">
+                {% if user.portfolio.count() > 0 %}
+                {% for project in user.portfolio.all() %}
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100 overflow-hidden">
+                        {% if project.image_url %}
+                        <img src="{{ url_for('static', filename='portfolio/' + project.image_url) }}"
+                            class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ project.title }}"
+                            onerror="this.src='https://via.placeholder.com/400x180?text=Project'">
+                        {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                            <i class="bi bi-image text-muted fs-1"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-2">{{ project.title }}</h6>
+                            <p class="text-muted small mb-3">{{ project.description }}</p>
+                            {% if project.link %}
+                            <a href="{{ project.link }}" target="_blank" class="btn btn-sm btn-outline-primary w-100">
+                                View Project
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="col-12 text-center py-5 bg-white rounded shadow-sm">
+                    <i class="bi bi-images fs-2 text-muted opacity-50 mb-3 d-block"></i>
+                    <p class="text-muted">No portfolio items added yet.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Services -->
+            {% if services %}
+            <h5 class="fw-bold mb-3" style="color: #064e3b;">Services ({{ services|length }})</h5>
+            <div class="row g-4 mb-5">
+                {% for service in services %}
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <img src="{{ url_for('static', filename='images/' + service.image_url) }}" class="card-img-top"
+                            style="height: 150px; object-fit: cover;"
+                            onerror="this.src='https://via.placeholder.com/300x150?text=Service'">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-2">{{ service.title }}</h6>
+                            <p class="text-muted small mb-3">{{ service.description|truncate(100) }}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <span class="h6 fw-bold mb-0 text-primary">₹{{ "%.0f"|format(service.price) }}</span>
+                                <a href="{{ url_for('service.detail', service_id=service.id) }}"
+                                    class="btn btn-sm btn-link text-decoration-none">Details &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f8fafc;
+    }
+
+    .card {
+        border-radius: 12px;
+    }
+</style>
+{% endblock %}

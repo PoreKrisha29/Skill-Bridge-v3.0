@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Communities - SkillBridge{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-mesh py-5" style="margin-top: 80px;">
+    <div class="container">
+        <div class="text-center">
+            <h1 class="display-3 fw-bold mb-4">
+                Join Our <span class="text-gradient">Communities</span>
+            </h1>
+            <p class="lead text-muted mb-0">
+                Connect with like-minded professionals, share knowledge, and grow together
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Communities Grid -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            {% for community in communities %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card card-custom h-100">
+                    <div class="position-relative" style="height: 200px; overflow: hidden;">
+                        <img src="{{ community.image_url or 'https://via.placeholder.com/400x250' }}"
+                            class="w-100 h-100 object-fit-cover" alt="{{ community.name }}">
+                        <div class="position-absolute bottom-0 start-0 w-100 p-3 text-white"
+                            style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);">
+                            <h4 class="mb-0 fw-bold">{{ community.name }}</h4>
+                            <small class="opacity-90">{{ community.category }}</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">{{ community.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="text-muted small">
+                                <i class="bi bi-people me-1"></i> {{ community.members_count }} members
+                            </div>
+                            {% if community.is_joined %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle me-1"></i>Joined
+                            </span>
+                            {% endif %}
+                        </div>
+                        <a href="{{ url_for('main.community_detail', community_id=community.id) }}"
+                            class="btn btn-primary w-100">
+                            {% if community.is_joined %}
+                            View Community
+                            {% else %}
+                            Join Community
+                            {% endif %}
+                            <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-people fs-1 text-muted mb-3"></i>
+                <p class="text-muted">No communities available yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}Reviews & Suggestions - SkillBridge{% endblock %}
+
+{% block content %}
+<!-- Reviews Section -->
+<section class="section bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Share Your Feedback</h2>
+            <p class="section-subtitle">We value your opinion! Share your suggestions and see what others are saying about SkillBridge.</p>
+        </div>
+
+        <div class="row">
+            <!-- Review Form -->
+            <div class="col-lg-5 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-4">
+                            <i class="bi bi-chat-square-text text-primary me-2"></i>Add Your Suggestion
+                        </h4>
+                        
+                        <form method="POST" action="{{ url_for('main.reviews') }}">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Your Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                    value="{{ current_user.full_name or current_user.username if current_user.is_authenticated else '' }}"
+                                    required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email (Optional)</label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                    value="{{ current_user.email if current_user.is_authenticated else '' }}">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="rating" class="form-label">Rating</label>
+                                <div class="rating-input">
+                                    <input type="radio" id="star5" name="rating" value="5" checked>
+                                    <label for="star5" class="star-label">★</label>
+                                    <input type="radio" id="star4" name="rating" value="4">
+                                    <label for="star4" class="star-label">★</label>
+                                    <input type="radio" id="star3" name="rating" value="3">
+                                    <label for="star3" class="star-label">★</label>
+                                    <input type="radio" id="star2" name="rating" value="2">
+                                    <label for="star2" class="star-label">★</label>
+                                    <input type="radio" id="star1" name="rating" value="1">
+                                    <label for="star1" class="star-label">★</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="suggestion" class="form-label">Your Suggestion <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="suggestion" name="suggestion" rows="5" 
+                                    placeholder="Share your thoughts, suggestions, or feedback about SkillBridge..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-gradient-primary w-100">
+                                <i class="bi bi-send me-2"></i>Submit Suggestion
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Carousel -->
+            <div class="col-lg-7">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-4">
+                            <i class="bi bi-star-fill text-warning me-2"></i>What Others Are Saying
+                        </h4>
+                        
+                        {% if reviews %}
+                        <div id="reviewsCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+                            <div class="carousel-inner">
+                                {% for review in reviews %}
+                                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                    <div class="review-card p-4">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="reviewer-avatar me-3">
+                                                <div class="avatar-circle">
+                                                    {{ review.name[0].upper() }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold mb-0">{{ review.name }}</h6>
+                                                <div class="rating-stars">
+                                                    {% for i in range(1, 6) %}
+                                                    <i class="bi bi-star{% if i <= review.rating %}-fill{% endif %} text-warning"></i>
+                                                    {% endfor %}
+                                                </div>
+                                                <small class="text-muted">{{ review.created_at.strftime('%B %d, %Y') }}</small>
+                                            </div>
+                                        </div>
+                                        <p class="review-text mb-0">{{ review.suggestion }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-chat-square-text fs-1 text-muted mb-3 d-block"></i>
+                            <p class="text-muted">No reviews yet. Be the first to share your feedback!</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .rating-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+
+    .rating-input input[type="radio"] {
+        display: none;
+    }
+
+    .star-label {
+        font-size: 2rem;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .rating-input input[type="radio"]:checked ~ .star-label,
+    .rating-input .star-label:hover,
+    .rating-input .star-label:hover ~ .star-label {
+        color: #ffc107;
+    }
+
+    .review-card {
+        min-height: 200px;
+        background: var(--background);
+        border-radius: var(--radius);
+    }
+
+    .reviewer-avatar .avatar-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--gradient-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    .review-text {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--foreground);
+    }
+
+    .rating-stars {
+        font-size: 0.9rem;
+    }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 40px;
+        height: 40px;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .carousel-control-prev {
+        left: 10px;
+    }
+
+    .carousel-control-next {
+        right: 10px;
+    }
+</style>
+{% endblock %}
+
+

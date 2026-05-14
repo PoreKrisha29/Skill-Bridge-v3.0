@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us - SkillBridge{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-mesh py-5" style="margin-top: 80px;">
+    <div class="container">
+        <div class="text-center">
+            <h1 class="display-3 fw-bold mb-4">
+                About <span class="text-gradient">SkillBridge</span>
+            </h1>
+            <p class="lead text-muted mb-0">
+                We're on a mission to connect talented professionals with people who need their skills,
+                creating opportunities for everyone to succeed.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5 bg-gradient-primary text-white">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3">
+                <div class="h2 fw-bold mb-2 counter" data-target="{{ stats_data.total_users }}" data-suffix="+">0</div>
+                <div class="opacity-90">Active Professionals</div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="h2 fw-bold mb-2 counter" data-target="{{ stats_data.total_services }}" data-suffix="+">0
+                </div>
+                <div class="opacity-90">Services Listed</div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="h2 fw-bold mb-2">{{ "%.1f"|format(stats_data.average_rating) if stats_data.average_rating >
+                    0 else "N/A" }}</div>
+                <div class="opacity-90">Average Rating</div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="h2 fw-bold mb-2">24/7</div>
+                <div class="opacity-90">Support Available</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Story Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6">
+                <h2 class="display-5 fw-bold mb-4">Our Story</h2>
+                <p class="text-muted mb-4">
+                    SkillBridge was founded in 2026 with a simple mission: to connect talented professionals
+                    with people who need their skills. We believe that everyone deserves access to quality
+                    services, and every skilled professional deserves the opportunity to showcase their talents.
+                </p>
+                <p class="text-muted mb-4">
+                    What started as a small idea between two friends has grown into a thriving community
+                    of developers, designers, writers, marketers, and many other professionals from around
+                    the world. Today, SkillBridge powers thousands of projects and helps professionals
+                    build successful freelance careers.
+                </p>
+                <p class="text-muted mb-4">
+                    Our platform brings together a diverse community where skills meet opportunity.
+                    Whether you're looking to hire or offer services, SkillBridge provides the tools
+                    and environment to make it happen.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('main.communities') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-people me-2"></i>Join Communities
+                    </a>
+                    <a href="{{ url_for('service.browse') }}" class="btn btn-primary">
+                        <i class="bi bi-bullseye me-2"></i>Explore Services
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <i class="bi bi-heart fs-3 text-primary mb-3"></i>
+                                <h5 class="fw-semibold mb-2">Trust & Transparency</h5>
+                                <p class="text-muted small mb-0">We believe in building trust through transparent
+                                    processes, honest reviews, and clear communication.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <i class="bi bi-award fs-3 text-primary mb-3"></i>
+                                <h5 class="fw-semibold mb-2">Quality First</h5>
+                                <p class="text-muted small mb-0">Every professional on our platform goes through a
+                                    verification process to ensure they deliver exceptional work.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <i class="bi bi-people fs-3 text-primary mb-3"></i>
+                                <h5 class="fw-semibold mb-2">Community Driven</h5>
+                                <p class="text-muted small mb-0">Our vibrant communities bring professionals together to
+                                    share knowledge, collaborate, and grow together.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <i class="bi bi-lightning fs-3 text-primary mb-3"></i>
+                                <h5 class="fw-semibold mb-2">Innovation</h5>
+                                <p class="text-muted small mb-0">We continuously improve our platform with new features
+                                    and tools to make hiring and working easier.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission & Vision -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body p-5">
+                        <i class="bi bi-bullseye fs-1 text-primary mb-4"></i>
+                        <h3 class="h4 fw-bold mb-4">Our Mission</h3>
+                        <p class="text-muted mb-0">
+                            To democratize access to professional services by creating a platform where
+                            skills are valued, quality is guaranteed, and everyone has the opportunity
+                            to succeed. We strive to make hiring and working simple, secure, and rewarding.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body p-5">
+                        <i class="bi bi-globe fs-1 text-accent mb-4"></i>
+                        <h3 class="h4 fw-bold mb-4">Our Vision</h3>
+                        <p class="text-muted mb-0">
+                            To become the world's most trusted platform for professional services,
+                            where millions of skilled professionals and clients come together to
+                            create, collaborate, and achieve their goals.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<!-- Why Choose Us -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Why Choose SkillBridge?</h2>
+            <p class="text-muted max-w-lg mx-auto">
+                We're committed to providing the best experience for both clients and professionals.
+            </p>
+        </div>
+        <div class="row g-4">
+            {% for item in [
+            {'icon': 'shield-check', 'title': 'Secure Payments', 'desc': 'Your payment is held securely until you
+            approve the work.'},
+            {'icon': 'award', 'title': 'Quality Guarantee', 'desc': 'Every professional is vetted for quality work.'},
+            {'icon': 'people', 'title': 'Vibrant Community', 'desc': 'Join skill-based communities to learn and grow.'},
+            {'icon': 'lightning', 'title': 'Fast Turnaround', 'desc': 'Get projects completed quickly with clear
+            timelines.'},
+            {'icon': 'heart', 'title': '24/7 Support', 'desc': 'Our team is always ready to help you.'},
+            {'icon': 'globe', 'title': 'Global Reach', 'desc': 'Connect with professionals worldwide.'}
+            ] %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body d-flex gap-3">
+                        <div
+                            class="w-12 h-12 rounded bg-primary bg-opacity-10 d-flex align-items-center justify-content-center flex-shrink-0">
+                            <i class="bi bi-{{ item.icon }} fs-4 text-primary"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-semibold mb-1">{{ item.title }}</h5>
+                            <p class="text-muted small mb-0">{{ item.desc }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-gradient-primary text-white">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-3">Ready to Get Started?</h2>
+        <p class="lead mb-4 opacity-90 max-w-lg mx-auto">
+            Join SkillBridge today and connect with talented professionals or start offering your services.
+        </p>
+        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+            <a href="{{ url_for('service.browse') }}" class="btn btn-light btn-lg">
+                Find Services <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg">
+                Create Account
+            </a>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Counter animation
+    document.addEventListener('DOMContentLoaded', function () {
+        const counters = document.querySelectorAll('.counter');
+        counters.forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-target'));
+            const suffix = counter.getAttribute('data-suffix') || '';
+            const duration = 2000;
+            const step = target / (duration / 16);
+            let current = 0;
+
+            const updateCounter = () => {
+                current += step;
+                if (current < target) {
+                    counter.textContent = Math.floor(current) + suffix;
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target + suffix;
+                }
+            };
+            updateCounter();
+        });
+    });
+</script>
+{% endblock %}

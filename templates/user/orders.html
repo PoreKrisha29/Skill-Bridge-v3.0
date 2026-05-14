@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders - SkillBridge{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="fw-bold mb-4">My Orders</h2>
+
+        <!-- Orders as Buyer -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Orders Placed</h5>
+            </div>
+            <div class="card-body">
+                {% if orders_as_buyer %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Service</th>
+                                <th>Provider</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders_as_buyer %}
+                            <tr style="cursor: pointer;"
+                                onclick="window.location='{{ url_for('user.order_detail', order_id=order.id) }}'">
+                                <td><a href="{{ url_for('user.order_detail', order_id=order.id) }}"
+                                        class="text-decoration-none fw-bold">#{{ order.id }}</a></td>
+                                <td>
+                                    <div class="fw-bold">{{ order.service.title }}</div>
+                                </td>
+                                <td>{{ order.service.provider.username }}</td>
+                                <td>{{ order.created_at.strftime('%b %d, %Y') }}</td>
+                                <td>
+                                    <span
+                                        class="badge bg-{{ 'warning' if order.status=='pending' else 'primary' if order.status=='in_progress' else 'success' }}">{{
+                                        order.status|title }}</span>
+                                </td>
+                                <td>₹{{ "%.0f"|format(order.service.price) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                    <p>No orders placed yet</p>
+                    <a href="{{ url_for('service.browse') }}" class="btn btn-primary">Browse Services</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Orders as Seller (if provider) -->
+        {% if current_user.user_type == 'provider' %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Orders Received</h5>
+            </div>
+            <div class="card-body">
+                {% if orders_as_seller %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Service</th>
+                                <th>Buyer</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders_as_seller %}
+                            <tr style="cursor: pointer;"
+                                onclick="window.location='{{ url_for('user.order_detail', order_id=order.id) }}'">
+                                <td><a href="{{ url_for('user.order_detail', order_id=order.id) }}"
+                                        class="text-decoration-none fw-bold">#{{ order.id }}</a></td>
+                                <td>{{ order.service.title }}</td>
+                                <td>{{ order.buyer.username }}</td>
+                                <td>{{ order.created_at.strftime('%b %d, %Y') }}</td>
+                                <td><span
+                                        class="badge bg-{{ 'warning' if order.status=='pending' else 'primary' if order.status=='in_progress' else 'success' }}">{{
+                                        order.status|title }}</span></td>
+                                <td>₹{{ "%.0f"|format(order.service.price * 86) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <p>No orders received yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

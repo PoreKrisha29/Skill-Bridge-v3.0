@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - SkillBridge{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col">
+                <h2 class="fw-bold">
+                    <i class="bi bi-shield-check text-gradient me-2"></i>
+                    Admin Dashboard
+                </h2>
+                <p class="text-muted">Manage your SkillBridge platform</p>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="text-muted mb-1">Total Users</p>
+                                <h3 class="mb-0">{{ stats.total_users }}</h3>
+                            </div>
+                            <div class="stat-icon bg-primary">
+                                <i class="bi bi-people-fill text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="text-muted mb-1">Total Services</p>
+                                <h3 class="mb-0">{{ stats.total_services }}</h3>
+                            </div>
+                            <div class="stat-icon bg-success">
+                                <i class="bi bi-briefcase-fill text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="text-muted mb-1">Total Orders</p>
+                                <h3 class="mb-0">{{ stats.total_orders }}</h3>
+                            </div>
+                            <div class="stat-icon bg-warning">
+                                <i class="bi bi-cart-fill text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="text-muted mb-1">Total Reviews</p>
+                                <h3 class="mb-0">{{ stats.total_reviews }}</h3>
+                            </div>
+                            <div class="stat-icon bg-info">
+                                <i class="bi bi-star-fill text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{{ url_for('admin.users') }}" class="btn btn-outline-primary">
+                                <i class="bi bi-people me-2"></i>Manage Users
+                            </a>
+                            <a href="{{ url_for('admin.services') }}" class="btn btn-outline-success">
+                                <i class="bi bi-briefcase me-2"></i>Manage Services
+                            </a>
+                            <a href="{{ url_for('admin.categories') }}" class="btn btn-outline-info">
+                                <i class="bi bi-grid me-2"></i>Manage Categories
+                            </a>
+                            <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-warning">
+                                <i class="bi bi-cart me-2"></i>View Orders
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Recent Users -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Recent Users</h5>
+                        <a href="{{ url_for('admin.users') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Type</th>
+                                        <th>Joined</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in recent_users %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="{{ url_for('static', filename='images/' + user.avatar_url) }}"
+                                                    class="rounded-circle me-2" width="32" height="32"
+                                                    onerror="this.src='https://via.placeholder.com/32?text=U'">
+                                                <div>
+                                                    <div class="fw-medium">{{ user.username }}</div>
+                                                    <div class="small text-muted">{{ user.email }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span
+                                                class="badge bg-{% if user.user_type == 'provider' %}success{% else %}primary{% endif %}">
+                                                {{ user.user_type }}
+                                            </span>
+                                        </td>
+                                        <td class="small text-muted">{{ user.created_at.strftime('%b %d, %Y') }}</td>
+                                        <td>
+                                            <span
+                                                class="badge bg-{% if user.is_active %}success{% else %}danger{% endif %}">
+                                                {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Services -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Recent Services</h5>
+                        <a href="{{ url_for('admin.services') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Service</th>
+                                        <th>Provider</th>
+                                        <th>Price</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for service in recent_services %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ url_for('service.detail', service_id=service.id) }}"
+                                                class="text-decoration-none text-dark fw-medium">
+                                                {{ service.title[:30] }}...
+                                            </a>
+                                        </td>
+                                        <td class="small text-muted">{{ service.provider.username }}</td>
+                                        <td class="fw-medium">₹{{ "%.0f"|format(service.price) }}</td>
+                                        <td>
+                                            <span
+                                                class="badge bg-{% if service.is_active %}success{% else %}danger{% endif %}">
+                                                {% if service.is_active %}Active{% else %}Inactive{% endif %}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+</style>
+{% endblock %}

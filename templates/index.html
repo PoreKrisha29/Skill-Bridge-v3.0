@@ -1,0 +1,579 @@
+{% extends 'base.html' %}
+
+{% block title %}SkillBridge - Find the Perfect Skill Match{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section animate-fade-in">
+    <div class="hero-background">
+        <img src="https://images.unsplash.com/photo-5522071820081-009f0129c71c?w=1200&h=800&fit=crop"
+            alt="Hero Background" id="heroImage">
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <div class="badge bg-primary bg-opacity-10 text-primary px-4 py-2 rounded-pill mb-4 floating">
+                    <i class="bi bi-sparkles me-2"></i>Connect with skilled professionals
+                </div>
+                <h1 class="hero-title text-dark">
+                    Find the Perfect
+                    <span class="gradient-text">Skill Match</span>
+                </h1>
+                <p class="lead text-dark mb-5" style="opacity: 0.8;">
+                    Connect with talented professionals for your projects. Browse services, join communities, and build
+                    something amazing together.
+                </p>
+
+                <div class="hero-search mb-4">
+                    <i class="bi bi-search text-muted ms-3"></i>
+                    <input type="text" id="heroSearch" class="form-control border-0"
+                        placeholder="What service are you looking for?"
+                        onkeydown="if(event.key === 'Enter') searchFromHero()">
+                    <button class="btn btn-primary" onclick="searchFromHero()">
+                        Search <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
+                    <span class="text-muted small">Popular:</span>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill"
+                        onclick="setHeroSearch('Web Development')">Web Development</button>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill"
+                        onclick="setHeroSearch('Photography')">Photography</button>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill"
+                        onclick="setHeroSearch('Content Writing')">Content Writing</button>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill"
+                        onclick="setHeroSearch('Video Editing')">Video Editing</button>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill"
+                        onclick="setHeroSearch('Music & Audio')">Music & Audio</button>
+                </div>
+
+                <div class="row mt-5 pt-5">
+                    <div class="col-4 text-center">
+                        <div class="h3 fw-bold counter" data-target="{{ stats_data.total_users }}" data-suffix="+">0
+                        </div>
+                        <div class="text-muted small">Professionals</div>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="h3 fw-bold counter" data-target="{{ stats_data.total_services }}" data-suffix="+">0
+                        </div>
+                        <div class="text-muted small">Services</div>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="h3 fw-bold counter" data-target="{{ stats_data.satisfaction_rate }}"
+                            data-suffix="%">0</div>
+                        <div class="text-muted small">Satisfaction</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category Section -->
+<section class="section animate-on-scroll" id="categories">
+    <div class="container">
+        <h2 class="section-title">Browse by Category</h2>
+        <p class="section-subtitle">Explore services across various skill categories and find exactly what you need</p>
+
+        <div class="row g-4">
+            {% for cat in category_stats %}
+            <div class="col-6 col-md-3">
+                <a href="{{ url_for('service.browse', category=cat.id) }}" class="text-decoration-none">
+                    <div class="category-card {{ cat.name|lower }}">
+                        <div class="category-icon {{ cat.name|lower }}">
+                            <i class="bi {{ cat.icon }}"></i>
+                        </div>
+                        <h5 class="fw-semibold mb-1 text-dark">{{ cat.name }}</h5>
+                        <p class="text-muted small mb-0">{{ cat.service_count }} services</p>
+                    </div>
+                </a>
+            </div>
+            {% else %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No categories found.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{# Featured Services Section - Commented Out #}
+{#
+<section class="section bg-light animate-on-scroll">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-5">
+            <div>
+                <h2 class="section-title text-start">Featured Services</h2>
+                <p class="text-muted">Discover top-rated services from our most talented professionals</p>
+            </div>
+            <a href="{{ url_for('service.browse') }}" class="text-primary text-decoration-none">View All Services →</a>
+        </div>
+
+        <div class="row g-4">
+            {% for service in featured_services %}
+            <div class="col-md-6 col-lg-4">
+                <a href="{{ url_for('service.detail', service_id=service.id) }}" class="text-decoration-none text-dark">
+                    <div class="card card-custom h-100">
+                        <div class="card-img-wrapper position-relative">
+                            <img src="{{ url_for('static', filename='images/' + service.image_url) }}"
+                                class="card-img-top" alt="{{ service.title }}"
+                                onerror="this.src='https://via.placeholder.com/400x250'">
+                            <span class="badge badge-primary position-absolute top-0 start-0 m-3">Featured</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="service-provider">
+                                <img src="{{ service.provider.get_avatar_url() }}" alt="{{ service.provider.username }}"
+                                    class="rounded-circle">
+                                <span class="small fw-medium">{{ service.provider.username }}</span>
+                            </div>
+                            <h5 class="card-title">{{ service.title }}</h5>
+                            <div class="service-rating mb-3">
+                                <i class="bi bi-star-fill star-filled"></i>
+                                <span class="fw-medium">{{ service.get_average_rating() }}</span>
+                                <span class="text-muted">({{ service.get_review_count() }})</span>
+                            </div>
+                            <div class="service-footer">
+                                <span class="text-muted small">
+                                    <i class="bi bi-clock"></i> {{ service.delivery_time }}
+                                </span>
+                                <div class="text-end">
+                                    <div class="text-muted small">Starting at</div>
+                                    <div class="h5 fw-bold mb-0">₹{{ "%.0f"|format(service.price) }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% else %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No featured services yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+#}
+
+<!-- How It Works -->
+<section class="section bg-light animate-on-scroll">
+    <div class="container">
+        <h2 id="how-it-works" class="section-title">How It Works</h2>
+        <p class="section-subtitle">Get started in minutes with our simple, straightforward process</p>
+
+        <div class="row g-4 position-relative justify-content-center">
+            {% set steps = [
+            {'num': 1, 'title': 'Create Profile', 'desc': 'Sign up and build your professional profile showcasing your
+            skills and portfolio.', 'icon': 'person-plus', 'bg': '#3b82f6', 'url': url_for('auth.register')},
+            {'num': 2, 'title': 'Find Services', 'desc': 'Browse through categories or search for specific skills you
+            need for your project.', 'icon': 'search', 'bg': '#9333ea', 'url': url_for('service.browse')},
+            {'num': 3, 'title': 'Connect & Chat', 'desc': 'Reach out to service providers, discuss requirements, and
+            agree on terms.', 'icon': 'chat-dots', 'bg': '#14b8a6', 'url': (url_for('user.chats') if
+            current_user.is_authenticated else url_for('auth.login'))}
+            ] %}
+            <div class="position-absolute top-50 start-0 end-0 d-none d-lg-block"
+                style="height: 2px; background: var(--border); z-index: 0; margin-top: -40px;"></div>
+            {% for step in steps %}
+            <div class="col-md-6 col-lg-4 text-center position-relative step-card-animated" style="z-index: 1;">
+                <a href="{{ step.url }}" class="text-decoration-none text-dark step-card-link">
+                    <div class="position-relative d-inline-block">
+                        <div class="position-absolute top-0 start-50 translate-middle w-8 h-8 rounded-circle bg-white border-2 border-primary d-flex align-items-center justify-content-center fw-bold text-primary step-number-badge"
+                            style="font-size: 0.75rem; margin-top: -16px;">
+                            {{ step.num }}
+                        </div>
+                        <div class="rounded-3 d-flex align-items-center justify-content-center text-white mx-auto mb-4 step-icon-box"
+                            style="width: 80px; height: 80px; background-color: {{ step.bg }}; color: {{ '#000' if step.bg == '#e5e7eb' else '#fff' }};">
+                            <i class="bi bi-{{ step.icon }} fs-2"></i>
+                        </div>
+                    </div>
+                    <h4 class="fw-semibold mb-3">{{ step.title }}</h4>
+                    <p class="text-muted small mb-3">{{ step.desc }}</p>
+                    <button class="btn btn-sm btn-primary rounded-pill px-4">
+                        Get Started <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Communities Section -->
+<section class="section bg-light">
+    <div class="container">
+        <h2 class="section-title">Join Our Communities</h2>
+        <p class="section-subtitle">Connect with like-minded professionals, share your work, ask questions, and grow
+            together</p>
+
+        <div class="row g-4">
+            {% for community in communities %} <div class="col-md-6">
+                <a href="{{ url_for('main.community_detail', community_id=community.id) }}"
+                    class="text-decoration-none text-dark">
+                    <div class="card card-custom h-100">
+                        <div class="position-relative" style="height: 150px; overflow: hidden;">
+                            <img src="{{ community.image_url or 'https://via.placeholder.com/400x200' }}"
+                                class="w-100 h-100 object-fit-cover" alt="{{ community.name }}">
+                            <div class="position-absolute bottom-0 start-0 w-100 p-3 text-white"
+                                style="background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);">
+                                <h4 class="mb-0">{{ community.name }}</h4>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-3">{{ community.description }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex gap-4 text-muted small">
+                                    <span><i class="bi bi-people me-1"></i> {{ community.members_count }} members</span>
+                                </div>
+                                <span class="btn btn-sm btn-outline-primary">
+                                    Join <i class="bi bi-arrow-right ms-1"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% else %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No communities found.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="{{ url_for('main.communities') }}" class="btn btn-outline-primary btn-lg">
+                Explore All Communities <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="section" id="faq" style="scroll-margin-top: 100px;">
+    <div class="container">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-subtitle">Got questions? We've got answers. Here are some of the most common questions about
+            SkillBridge.</p>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button rounded-3" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq1">
+                                <i class="bi bi-question-circle text-primary me-2"></i>
+                                What is SkillBridge?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                SkillBridge is a platform that connects skilled professionals with clients who need
+                                their services. Whether you're a freelancer looking to offer your skills or a client
+                                seeking talented professionals, SkillBridge makes it easy to find the perfect match.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed rounded-3" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq2">
+                                <i class="bi bi-question-circle text-primary me-2"></i>
+                                How do I get started as a service provider?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Simply create an account, complete your profile, and start listing your services. You
+                                can set your own prices, describe your expertise, and upload portfolio samples to
+                                attract clients.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed rounded-3" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq3">
+                                <i class="bi bi-question-circle text-primary me-2"></i>
+                                Is it free to join SkillBridge?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes! Creating an account on SkillBridge is completely free. You can browse services,
+                                create your profile, and start connecting with professionals at no cost.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed rounded-3" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq4">
+                                <i class="bi bi-question-circle text-primary me-2"></i>
+                                How do I communicate with service providers?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Once you place an order, you can communicate directly with your service provider through
+                                our built-in real-time chat system. Discuss project details, share requirements, and
+                                track progress all in one place.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed rounded-3" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq5">
+                                <i class="bi bi-question-circle text-primary me-2"></i>
+                                What categories of services are available?
+                            </button>
+                        </h2>
+                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                SkillBridge offers a wide range of services including Web Development, Graphic Design,
+                                Content Writing, Video Editing, Digital Marketing, Photography, Business Consulting, and
+                                more. Explore our categories to find exactly what you need.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed rounded-3" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq6">
+                                <i class="bi bi-question-circle text-primary me-2"></i>
+                                How are payments handled?
+                            </button>
+                        </h2>
+                        <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Payment terms are agreed upon between the client and service provider. We recommend
+                                discussing payment details and milestones before starting any project to ensure a smooth
+                                collaboration.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section position-relative overflow-hidden bg-gradient-primary text-white">
+    <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-mesh opacity-30"></div>
+    <div class="container position-relative z-10">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="display-5 fw-bold mb-4">Ready to Bridge Your Skills?</h2>
+                <p class="lead mb-5 opacity-90">
+                    Join thousands of professionals who are already connecting, collaborating, and growing together on
+                    SkillBridge.
+                </p>
+
+                <div class="d-flex flex-wrap justify-content-center gap-4 mb-5">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-check-circle-fill text-accent"></i>
+                        <span class="fw-medium">Create your professional profile</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-check-circle-fill text-accent"></i>
+                        <span class="fw-medium">Offer or request services</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-check-circle-fill text-accent"></i>
+                        <span class="fw-medium">Join skill-based communities</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-check-circle-fill text-accent"></i>
+                        <span class="fw-medium">Connect via built-in chat</span>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg">
+                        Get Started Free <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                    <a href="{{ url_for('main.about') }}" class="btn btn-outline-light btn-lg">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+<!-- Login/Signup Modal -->
+{% if not current_user.is_authenticated %}
+<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem; overflow: hidden;">
+            <div class="modal-header border-0 pb-0"
+                style="background: linear-gradient(135deg, #2563eb 0%, #0d9488 100%);">
+                <div class="w-100 text-center text-white py-4">
+                    <div class="logo-icon gradient-primary rounded-3 p-3 d-inline-flex mb-3"
+                        style="background: rgba(255, 255, 255, 0.2);">
+                        <i class="bi bi-lightning-charge-fill text-white fs-2"></i>
+                    </div>
+                    <h2 class="fw-bold mb-2">Welcome to SkillBridge!</h2>
+                    <p class="mb-0 opacity-90">Join thousands of professionals connecting and growing together</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <p class="text-muted">Get started by creating an account or logging in</p>
+                </div>
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-gradient-primary btn-lg rounded-pill">
+                        <i class="bi bi-person-plus me-2"></i>Create Account
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg rounded-pill">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Log In
+                    </a>
+                </div>
+                <div class="text-center mt-4">
+                    <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">
+                        Continue as Guest
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% block extra_js %}
+<script>
+    let currentSlide = 0;
+    const heroSlides = [
+        {
+            title: "Find the Perfect",
+            highlight: "Skill Match",
+            subtitle: "Connect with talented professionals for your projects. Browse services, join communities, and build something amazing together.",
+            image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&h=800&fit=crop"
+        },
+        {
+            title: "Grow Your",
+            highlight: "Freelance Career",
+            subtitle: "Join thousands of professionals showcasing their skills. Set your rates, build your portfolio, and connect with clients worldwide.",
+            image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&h=800&fit=crop"
+        },
+        {
+            title: "Join Thriving",
+            highlight: "Communities",
+            subtitle: "Connect with like-minded professionals, share knowledge, and grow together in skill-based communities.",
+            image: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1200&h=800&fit=crop"
+        }
+    ];
+
+    // Preload images for smoother transitions
+    heroSlides.forEach(slide => {
+        const img = new Image();
+        img.src = slide.image;
+    });
+
+    function changeHeroSlide() {
+        currentSlide = (currentSlide + 1) % heroSlides.length;
+        const slide = heroSlides[currentSlide];
+
+        // Update image instantly (0s delay)
+        const heroImage = document.getElementById('heroImage');
+        heroImage.src = slide.image;
+    }
+
+    // Start slideshow immediately but with a faster interval
+    setInterval(changeHeroSlide, 1000);
+
+    function setHeroSearch(term) {
+        document.getElementById('heroSearch').value = term;
+    }
+
+    function searchFromHero() {
+        const query = document.getElementById('heroSearch').value;
+        if (query.trim()) {
+            window.location.href = `{{ url_for('service.browse') }}?q=${encodeURIComponent(query)}`;
+        } else {
+            window.location.href = '{{ url_for("service.browse") }}';
+        }
+    }
+
+    // Counter animation
+    document.addEventListener('DOMContentLoaded', function () {
+        const counters = document.querySelectorAll('.counter');
+        counters.forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-target'));
+            const suffix = counter.getAttribute('data-suffix') || '';
+            const duration = 2000;
+            const step = target / (duration / 16);
+            let current = 0;
+
+            const updateCounter = () => {
+                current += step;
+                if (current < target) {
+                    counter.textContent = Math.floor(current) + suffix;
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target + suffix;
+                }
+            };
+            updateCounter();
+        });
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animated');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Navbar scroll effect
+        const navbar = document.querySelector('.navbar');
+        let lastScroll = 0;
+
+        window.addEventListener('scroll', function () {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        // Show auth modal for unauthenticated users (only once per session)
+        {% if not current_user.is_authenticated %}
+        const authModalShown = sessionStorage.getItem('authModalShown');
+        if (!authModalShown) {
+            setTimeout(() => {
+                const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+                authModal.show();
+                sessionStorage.setItem('authModalShown', 'true');
+            }, 500);
+        }
+        {% endif %}
+    });
+</script>
+{% endblock %}

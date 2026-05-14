@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Services - SkillBridge{% endblock %}
+
+{% block content %}
+<!-- Carousel Section -->
+<section class="py-0">
+    <div id="servicesCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#servicesCarousel" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#servicesCarousel" data-bs-slide-to="1"></button>
+            <button type="button" data-bs-target="#servicesCarousel" data-bs-slide-to="2"></button>
+        </div>
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="carousel-slide-content"
+                    style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(13, 148, 136, 0.9)), url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&h=600&fit=crop'); background-size: cover; background-position: center; min-height: 400px; display: flex; align-items: center; justify-content: center;">
+                    <div class="container text-center text-white">
+                        <h2 class="display-4 fw-bold mb-3">Collaborate & Create Together</h2>
+                        <p class="lead mb-4">Join talented professionals working on amazing projects</p>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="carousel-slide-content"
+                    style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(13, 148, 136, 0.9)), url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&h=600&fit=crop'); background-size: cover; background-position: center; min-height: 400px; display: flex; align-items: center; justify-content: center;">
+                    <div class="container text-center text-white">
+                        <h2 class="display-4 fw-bold mb-3">Team Up for Success</h2>
+                        <p class="lead mb-4">Connect with experts and bring your ideas to life</p>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="carousel-slide-content"
+                    style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(13, 148, 136, 0.9)), url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1200&h=600&fit=crop'); background-size: cover; background-position: center; min-height: 400px; display: flex; align-items: center; justify-content: center;">
+                    <div class="container text-center text-white">
+                        <h2 class="display-4 fw-bold mb-3">Build Something Amazing</h2>
+                        <p class="lead mb-4">Find the perfect team for your next project</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#servicesCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#servicesCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+</section>
+
+<!-- Hero Section -->
+<section class="py-5 bg-white text-center border-bottom">
+    <div class="container py-4">
+        <h1 class="display-4 fw-bold mb-3">Find the Perfect Service</h1>
+        <p class="lead text-muted mb-5">Browse thousands of services from talented professionals</p>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <form action="{{ url_for('service.browse') }}" method="GET">
+                    <div class="input-group input-group-lg bg-light rounded-pill p-1 border">
+                        <span class="input-group-text bg-transparent border-0 ps-4">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" name="q" class="form-control border-0 bg-transparent" value="{{ query }}"
+                            placeholder="Search services, skills..." autocomplete="off">
+                        <button class="btn btn-primary rounded-pill px-5 m-1" type="submit">
+                            Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <!-- Filters Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold m-0">Filters</h5>
+                </div>
+
+                <div class="card border-0 shadow-sm p-4 sticky-top" style="top: 100px; border-radius: 16px;">
+                    <form method="GET" action="{{ url_for('service.browse') }}" id="filterForm">
+                        <input type="hidden" name="q" value="{{ query }}">
+                        <input type="hidden" name="sort" id="sortField" value="{{ sort_by }}">
+
+                        <!-- Category Filter -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold mb-3">Category</label>
+                            <div class="d-grid gap-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="category" value="" id="cat_all"
+                                        {% if not selected_category %}checked{% endif %} onchange="this.form.submit()">
+                                    <label class="form-check-label" for="cat_all">All Categories</label>
+                                </div>
+                                {% for cat in categories %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="category" value="{{ cat.id }}"
+                                        id="cat_{{ cat.id }}" {% if selected_category|int==cat.id %}checked{% endif %}
+                                        onchange="this.form.submit()">
+                                    <label class="form-check-label" for="cat_{{ cat.id }}">{{ cat.name }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold mb-3">Budget (₹)</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="number" class="form-control" name="min_price" placeholder="Min" min="0"
+                                        value="{{ min_price if min_price else '' }}">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" class="form-control" name="max_price" placeholder="Max" min="0"
+                                        value="{{ max_price if max_price else '' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-dark w-100 rounded-pill">Apply</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Services Grid -->
+            <div class="col-lg-9">
+                <!-- Results Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <p class="fw-bold mb-0 fs-5">{{ services|length }} services found</p>
+
+                    <div class="d-flex align-items-center">
+                        <label class="me-2 small text-muted">Sort by:</label>
+                        <select class="form-select form-select-sm border-0 bg-transparent fw-bold" name="sort_selector"
+                            style="width: auto; cursor: pointer;"
+                            onchange="document.getElementById('sortField').value=this.value; document.getElementById('filterForm').submit()">
+                            <option value="rating" {% if sort_by=='rating' %}selected{% endif %}>Recommended</option>
+                            <option value="newest" {% if sort_by=='newest' %}selected{% endif %}>Newest</option>
+                            <option value="price_asc" {% if sort_by=='price_asc' %}selected{% endif %}>Price: Low to
+                                High</option>
+                            <option value="price_desc" {% if sort_by=='price_desc' %}selected{% endif %}>Price: High to
+                                Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Services Grid -->
+                {% if services %}
+                <div class="row g-4" id="servicesContainer">
+                    {% for service in services %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm service-card"
+                            style="border-radius: 16px; overflow: hidden; transition: transform 0.2s;">
+                            <!-- Service Image -->
+                            <div class="position-relative">
+                                <a href="{{ url_for('service.detail', service_id=service.id) }}">
+                                    <img src="{{ url_for('static', filename='images/' + service.image_url) if service.image_url else 'https://images.unsplash.com/photo-1542744173-05336fcc7ad4' }}"
+                                        class="card-img-top object-fit-cover" height="200" alt="{{ service.title }}"
+                                        onerror="this.src='https://via.placeholder.com/400x300?text=Service'">
+                                </a>
+                                <span
+                                    class="badge bg-primary position-absolute top-0 start-0 m-3 rounded-pill px-3">Featured</span>
+                            </div>
+
+                            <!-- Service Content -->
+                            <div class="card-body p-3">
+                                <!-- Provider Info -->
+                                <div class="d-flex align-items-center mb-2">
+                                    <img src="{{ service.provider.avatar_url }}" class="rounded-circle me-2" width="24"
+                                        height="24" onerror="this.src='https://via.placeholder.com/24?text=U'">
+                                    <span class="small fw-bold text-dark">{{ service.provider.username }}</span>
+                                </div>
+
+                                <!-- Title -->
+                                <h6 class="card-title fw-bold mb-2">
+                                    <a href="{{ url_for('service.detail', service_id=service.id) }}"
+                                        class="text-decoration-none text-dark stretched-link">
+                                        {{ service.title }}
+                                    </a>
+                                </h6>
+
+                                <!-- Rating -->
+                                <div class="mb-3 small">
+                                    <i class="bi bi-star-fill text-warning me-1"></i>
+                                    <span class="fw-bold">{{ service.get_average_rating() }}</span>
+                                    <span class="text-muted">({{ service.get_review_count() }})</span>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-auto">
+                                    <small class="text-muted">Starting at</small>
+                                    <span class="fw-bold fs-5">₹{{ "%.0f"|format(service.price) }}</span>
+                                    <!-- Assuming price stored as USD, converting approx 86 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <!-- No Results -->
+                <div class="text-center py-5">
+                    <i class="bi bi-search fs-1 text-muted mb-3 d-block"></i>
+                    <h4>No services found</h4>
+                    <p class="text-muted">Try adjusting your filters or search query</p>
+                    <a href="{{ url_for('service.browse') }}" class="btn btn-dark rounded-pill px-4">
+                        Clear Filters
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+</style>
+{% endblock %}

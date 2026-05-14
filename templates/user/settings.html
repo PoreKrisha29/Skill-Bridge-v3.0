@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings - SkillBridge{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Account Settings</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('user.settings') }}" enctype="multipart/form-data">
+                            <!-- Avatar -->
+                            <div class="mb-3">
+                                <label class="form-label">Profile Picture</label>
+                                <div class="mb-2">
+                                    <img id="avatar-preview" src="{{ current_user.get_avatar_url() }}"
+                                        class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;"
+                                        alt="Avatar Preview">
+                                </div>
+                                <input type="file" class="form-control" name="avatar" id="avatar-input"
+                                    accept="image/*">
+                            </div>
+
+                            <!-- Full Name -->
+                            <div class="mb-3">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" name="full_name"
+                                    value="{{ current_user.full_name or '' }}">
+                            </div>
+
+                            <!-- Bio -->
+                            <div class="mb-3">
+                                <label class="form-label">Bio</label>
+                                <textarea class="form-control" name="bio"
+                                    rows="3">{{ current_user.bio or '' }}</textarea>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="mb-3">
+                                <label class="form-label">Phone</label>
+                                <input type="tel" class="form-control" name="phone"
+                                    value="{{ current_user.phone or '' }}">
+                            </div>
+
+                            <hr>
+
+                            <h5 class="mb-3">Change Password</h5>
+
+                            <!-- Current Password -->
+                            <div class="mb-3">
+                                <label class="form-label">Current Password</label>
+                                <div class="position-relative">
+                                    <input type="password" class="form-control pe-5" id="current_password"
+                                        name="current_password">
+                                    <button type="button" tabindex="-1"
+                                        onclick="togglePasswordVisibility('current_password', this)"
+                                        style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; padding:0; cursor:pointer; z-index:10; color:#6c757d;">
+                                        <i class="bi bi-eye-slash fs-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- New Password -->
+                            <div class="mb-3">
+                                <label class="form-label">New Password</label>
+                                <div class="position-relative">
+                                    <input type="password" class="form-control pe-5" id="new_password"
+                                        name="new_password">
+                                    <button type="button" tabindex="-1"
+                                        onclick="togglePasswordVisibility('new_password', this)"
+                                        style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; padding:0; cursor:pointer; z-index:10; color:#6c757d;">
+                                        <i class="bi bi-eye-slash fs-5"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback" id="newPasswordFeedback">
+                                    Password must be at least 8 characters, include a letter, a number, and a special
+                                    character.
+                                </div>
+                                <small class="text-muted">Leave blank to keep current password. If changing: 8+
+                                    characters, a letter, a number &amp; special char.</small>
+                            </div>
+
+                            <!-- Save Button -->
+                            <button type="submit" class="btn btn-gradient-primary">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Save Changes
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Portfolio Projects Section -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Project Showcase</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">Showcase your completed projects to build credibility and attract more
+                            clients.</p>
+
+                        <!-- Add Project Form -->
+                        <form method="POST" action="{{ url_for('user.add_portfolio') }}" class="mb-4"
+                            enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Project Title *</label>
+                                    <input type="text" class="form-control" name="title" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Project Link (URL)</label>
+                                    <input type="url" class="form-control" name="link" placeholder="https://...">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" name="description" rows="2"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Project Image</label>
+                                <div class="mb-2" id="portfolio-preview-container" style="display: none;">
+                                    <img id="portfolio-preview" src="" class="img-thumbnail"
+                                        style="max-width: 200px; max-height: 200px; object-fit: cover;"
+                                        alt="Portfolio Image Preview">
+                                </div>
+                                <input type="file" class="form-control" name="image" id="portfolio-input"
+                                    accept="image/*">
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>Add Project
+                            </button>
+                        </form>
+
+                        <!-- Existing Projects -->
+                        {% if current_user.portfolio.count() > 0 %}
+                        <hr>
+                        <h6>Your Projects</h6>
+                        <div class="row g-3">
+                            {% for project in current_user.portfolio.all() %}
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ project.title }}</h6>
+                                        <p class="card-text small text-muted">{{ project.description or 'No description'
+                                            }}</p>
+                                        {% if project.link %}
+                                        <a href="{{ project.link }}" target="_blank"
+                                            class="btn btn-sm btn-outline-primary me-2">
+                                            <i class="bi bi-link-45deg"></i> View
+                                        </a>
+                                        {% endif %}
+                                        <form method="POST"
+                                            action="{{ url_for('user.delete_portfolio', project_id=project.id) }}"
+                                            class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Delete this project?')">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Avatar preview - show selected image before upload
+    document.getElementById('avatar-input').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                document.getElementById('avatar-preview').src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Portfolio image preview
+    const portfolioInput = document.getElementById('portfolio-input');
+    if (portfolioInput) {
+        portfolioInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            const previewContainer = document.getElementById('portfolio-preview-container');
+            const preview = document.getElementById('portfolio-preview');
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    preview.src = event.target.result;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewContainer.style.display = 'none';
+            }
+        });
+    }
+
+    // Password features
+    function togglePasswordVisibility(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('bi-eye-slash', 'bi-eye');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('bi-eye', 'bi-eye-slash');
+        }
+    }
+
+    function validatePasswordStrength(password) {
+        const minLength = password.length >= 8;
+        const hasLetter = /[a-zA-Z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecial = /[^a-zA-Z0-9]/.test(password);
+        return minLength && hasLetter && hasNumber && hasSpecial;
+    }
+
+    const newPasswordInput = document.getElementById('new_password');
+    if (newPasswordInput) {
+        // Real-time validation
+        newPasswordInput.addEventListener('input', function () {
+            if (this.value === '') {
+                this.classList.remove('is-invalid');
+                this.setCustomValidity('');
+                return;
+            }
+            if (!validatePasswordStrength(this.value)) {
+                this.classList.add('is-invalid');
+                // We handle validation manually to show/hide the styled feedback div
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+
+        // Form submission check
+        newPasswordInput.closest('form').addEventListener('submit', function (e) {
+            const newPassword = newPasswordInput.value;
+            if (newPassword && !validatePasswordStrength(newPassword)) {
+                e.preventDefault();
+                newPasswordInput.classList.add('is-invalid');
+                newPasswordInput.focus();
+                alert('Please comply with the password requirements.');
+            }
+        });
+    }
+</script>
+{% endblock %}

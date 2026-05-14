@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ community.name }} - SkillBridge{% endblock %}
+
+{% block content %}
+<!-- Community Header -->
+<section class="position-relative" style="margin-top: 80px;">
+    <div class="position-relative" style="height: 300px; overflow: hidden;">
+        <img src="{{ community.image_url or 'https://via.placeholder.com/1200x300' }}"
+            class="w-100 h-100 object-fit-cover" alt="{{ community.name }}">
+        <div class="position-absolute top-0 start-0 w-100 h-100"
+            style="background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));"></div>
+        <div class="position-absolute bottom-0 start-0 w-100 p-5 text-white">
+            <div class="container">
+                <h1 class="display-4 fw-bold mb-2">{{ community.name }}</h1>
+                <p class="lead mb-3">{{ community.description }}</p>
+                <div class="d-flex gap-4 align-items-center">
+                    <div>
+                        <i class="bi bi-people me-2"></i>
+                        <strong>{{ members_count }}</strong> members
+                    </div>
+                    <div>
+                        <i class="bi bi-tag me-2"></i>
+                        {{ community.category }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Community Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Join/Leave Section -->
+                <div class="card card-custom mb-4">
+                    <div class="card-body text-center py-4">
+                        {% if current_user.is_authenticated %}
+                        {% if is_member %}
+                        <h5 class="mb-3">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            You're a member of this community!
+                        </h5>
+                        <p class="text-muted mb-3">
+                            Connect with {{ members_count - 1 }} other professionals in {{ community.name }}
+                        </p>
+                        <form method="POST" action="{{ url_for('main.leave_community', community_id=community.id) }}"
+                            class="d-inline">
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="bi bi-box-arrow-right me-2"></i>Leave Community
+                            </button>
+                        </form>
+                        {% else %}
+                        <h5 class="mb-3">Join {{ community.name }}</h5>
+                        <p class="text-muted mb-3">
+                            Connect with {{ members_count }} professionals and grow your skills
+                        </p>
+                        <form method="POST" action="{{ url_for('main.join_community', community_id=community.id) }}"
+                            class="d-inline">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-plus-circle me-2"></i>Join Community
+                            </button>
+                        </form>
+                        {% endif %}
+                        {% else %}
+                        <h5 class="mb-3">Join {{ community.name }}</h5>
+                        <p class="text-muted mb-3">
+                            Sign in to join this community and connect with professionals
+                        </p>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In to Join
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- About Community -->
+                <div class="card card-custom mb-4">
+                    <div class="card-body">
+                        <h4 class="fw-bold mb-3">About This Community</h4>
+                        <p class="text-muted">{{ community.description }}</p>
+                        <hr>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <div
+                                        class="w-12 h-12 rounded bg-primary bg-opacity-10 d-flex align-items-center justify-content-center me-3">
+                                        <i class="bi bi-people fs-4 text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">{{ members_count }}</div>
+                                        <small class="text-muted">Members</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <div
+                                        class="w-12 h-12 rounded bg-primary bg-opacity-10 d-flex align-items-center justify-content-center me-3">
+                                        <i class="bi bi-tag fs-4 text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">{{ community.category }}</div>
+                                        <small class="text-muted">Category</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Recent Members -->
+                <div class="card card-custom">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Recent Members</h5>
+                        {% if members %}
+                        <div class="d-flex flex-column gap-3">
+                            {% for membership in members[:10] %}
+                            <div class="d-flex align-items-center">
+                                <img src="{{ membership.user.get_avatar_url() }}" alt="{{ membership.user.username }}"
+                                    class="rounded-circle me-3" width="40" height="40">
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold">{{ membership.user.username }}</div>
+                                    <small class="text-muted">
+                                        Joined {{ membership.joined_at.strftime('%b %d, %Y') }}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center py-3">
+                            <i class="bi bi-people"></i><br>
+                            No members yet. Be the first to join!
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

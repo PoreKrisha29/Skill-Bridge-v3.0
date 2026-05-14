@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Terms of Service - SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2 class="mb-4">Terms of Service</h2>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <p class="text-muted">Last updated: February 19, 2026</p>
+
+                    <h5 class="mt-4">1. Acceptance of Terms</h5>
+                    <p>By accessing and using SkillBridge, you accept and agree to be bound by the terms and provision
+                        of this agreement.</p>
+
+                    <h5 class="mt-4">2. Description of Service</h5>
+                    <p>SkillBridge provides a platform for connecting service providers with clients seeking
+                        professional services.</p>
+
+                    <h5 class="mt-4">3. User Conduct</h5>
+                    <p>You agree to use the service only for lawful purposes and in a way that does not infringe the
+                        rights of, restrict or inhibit anyone else's use and enjoyment of the website.</p>
+
+                    <h5 class="mt-4">4. Content</h5>
+                    <p>You retain all rights in, and are solely responsible for, the content you post to SkillBridge.
+                    </p>
+
+                    <h5 class="mt-4">5. Termination</h5>
+                    <p>We may terminate or suspend access to our service immediately, without prior notice or liability,
+                        for any reason whatsoever, including without limitation if you breach the Terms.</p>
+
+                    <div class="mt-5 text-center">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Back to Registration</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

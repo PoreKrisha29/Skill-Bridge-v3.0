@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Service - SkillBridge{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Create New Service</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('service.create') }}" class="needs-validation" novalidate
+                            enctype="multipart/form-data">
+                            <!-- Title -->
+                            <div class="mb-3">
+                                <label class="form-label">Service Title *</label>
+                                <input type="text" class="form-control" name="title"
+                                    placeholder="I will create a professional website" required>
+                                <div class="invalid-feedback">Please enter a service title</div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="mb-3">
+                                <label class="form-label">Category *</label>
+                                <select class="form-select" name="category_id" required>
+                                    <option value="">Select a category</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">Please select a category</div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-3">
+                                <label class="form-label">Description *</label>
+                                <textarea class="form-control" name="description" rows="5"
+                                    placeholder="Describe your service in detail..." required></textarea>
+                                <div class="invalid-feedback">Please enter a description</div>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="mb-3">
+                                <label class="form-label">Price (INR) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" name="price" min="50" step="1"
+                                        placeholder="500" required>
+                                </div>
+                                <div class="invalid-feedback">Please enter a valid price</div>
+                            </div>
+
+                            <!-- Delivery Time -->
+                            <div class="mb-3">
+                                <label class="form-label">Estimated Delivery Time *</label>
+                                <select class="form-select" name="delivery_time" required>
+                                    <option value="">Select delivery time range</option>
+                                    <option value="1-2 days">1-2 days</option>
+                                    <option value="3-5 days">3-5 days</option>
+                                    <option value="5-7 days">5-7 days</option>
+                                    <option value="7-10 days">7-10 days</option>
+                                    <option value="10-14 days">10-14 days</option>
+                                    <option value="14-30 days">14-30 days</option>
+                                    <option value="Custom">Custom</option>
+                                </select>
+                                <div class="form-text text-muted"> <i class="bi bi-info-circle"></i> This is an
+                                    approximate time. Complex projects may take longer.</div>
+                                <div class="invalid-feedback">Please select delivery time</div>
+                            </div>
+
+
+                            <!-- Image -->
+                            <div class="mb-3">
+                                <label class="form-label">Service Image *</label>
+                                <input type="file" class="form-control" name="image" accept="image/*" required>
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                    <strong>Required:</strong> Upload a high-quality image to showcase your service.
+                                    Images help attract more clients!
+                                </small>
+                                <div class="invalid-feedback">Please upload a service image</div>
+                            </div>
+
+                            <!-- Submit Buttons -->
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-gradient-primary">
+                                    <i class="bi bi-check-circle me-2"></i>
+                                    Create Service
+                                </button>
+                                <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-secondary">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Tips Card -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Tips for a Great Service</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li>Write a clear, descriptive title</li>
+                            <li>Provide detailed information about what you offer</li>
+                            <li>Set competitive pricing</li>
+                            <li>Be realistic about delivery times</li>
+                            <li>Upload a high-quality image to attract more clients</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
